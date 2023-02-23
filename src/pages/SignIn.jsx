@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
+import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { toast } from 'react-toastify';
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -17,13 +20,29 @@ export default function SignIn() {
       [e.target.id]: e.target.value,
     }));
   }
+  async function onSubmit(e) {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (userCredential.user) {
+        navigate('/');
+      }
+    } catch (error) {
+      toast.error('Bad user credential');
+    }
+  }
 
   return (
     <section>
       <h1 className='text-3xl text-center mt-6 font-bold'>Sign In</h1>
       <div className='flex justify-center flex-wrap max-w-6xl mx-auto'>
         <div className='flex flex-col md:w-[60%] lg:w-[75%] sm:w-[50%] mt-10'>
-          <form className='flex flex-col'>
+          <form onSubmit={onSubmit} className='flex flex-col'>
             <input
               type='email'
               id='email'
