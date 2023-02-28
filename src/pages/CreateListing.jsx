@@ -125,6 +125,7 @@ const CreateListing = () => {
     delete formDataCopy.images;
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
     const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
+    
     toast.success('Listing created');
     navigate(`/category/${formDataCopy.type}/${docRef.id}`);
   };
@@ -170,7 +171,7 @@ const CreateListing = () => {
           onChange={onChange}
           placeholder='Name'
           maxLength={32}
-          minLength={10}
+          minLength={5}
           required
           className='w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6'
         />

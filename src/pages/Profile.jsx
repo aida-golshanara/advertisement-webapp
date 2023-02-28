@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { db } from '../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { Link } from 'react-router-dom';
+import ListingItem from '../components/ListingItem';
 
 export default function Profile() {
   const auth = getAuth();
   const navigate = useNavigate();
   const [changeDetail, setChangeDetail] = useState(false);
+  const [listings, setListings] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email,
@@ -47,6 +59,42 @@ export default function Profile() {
       toast.error('could not update the profile detail');
     }
   };
+
+  useEffect(() => {
+    async function fetchUserListing() {
+      const listingRef = collection(db, 'listings');
+      const q = query(
+        listingRef,
+        where('userRef', '==', auth.currentUser.uid),
+        orderBy('timestamp', 'desc')
+      );
+      const querySnap = await getDocs(q);
+      let listings = [];
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        });
+      });
+      setListings(listings);
+      setLoading(false);
+    }
+    fetchUserListing();
+  }, [auth.currentUser.uid]);
+
+  // const onDelete = async (listingID) => {
+  //   if (window.confirm('Are you sure you want to delete this Listing?')) {
+  //     await deleteDoc(doc(db, 'listings', listingID));
+  //     const updatedListings = listings.filter(
+  //       (listing) => listing.id !== listingID
+  //     );
+  //     setListings(updatedListings);
+  //     toast.success('Your listing has been deleted');
+  //   }
+  // };
+  // const onEdit = async (listingID) => {
+  //   navigate(`/edit-listing/${listingID}`);
+  // };
 
   return (
     <>
@@ -101,6 +149,22 @@ export default function Profile() {
           </button>
         </div>
       </section>
+      <div className='max-w-6xl px-3 mx-auto'>
+        {!loading && listings.length > 0 && (
+          <>
+            <h2 className='text-2xl text-center font-semibold'>My Listings</h2>
+            <ul>
+              {listings.map((listing) => (
+                <ListingItem
+                  key={listing.id}
+                  id={listing.id}
+                  listing={listing.data}
+                />
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </>
   );
 }
