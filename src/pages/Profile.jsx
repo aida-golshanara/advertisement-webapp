@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import {
   collection,
   doc,
-  getDoc,
+  deleteDoc,
   getDocs,
   orderBy,
   query,
@@ -82,19 +82,19 @@ export default function Profile() {
     fetchUserListing();
   }, [auth.currentUser.uid]);
 
-  // const onDelete = async (listingID) => {
-  //   if (window.confirm('Are you sure you want to delete this Listing?')) {
-  //     await deleteDoc(doc(db, 'listings', listingID));
-  //     const updatedListings = listings.filter(
-  //       (listing) => listing.id !== listingID
-  //     );
-  //     setListings(updatedListings);
-  //     toast.success('Your listing has been deleted');
-  //   }
-  // };
-  // const onEdit = async (listingID) => {
-  //   navigate(`/edit-listing/${listingID}`);
-  // };
+  const onDelete = async (listingID) => {
+    if (window.confirm('Are you sure you want to delete this Listing?')) {
+      await deleteDoc(doc(db, 'listings', listingID));
+      const updatedListings = listings.filter(
+        (listing) => listing.id !== listingID
+      );
+      setListings(updatedListings);
+      toast.success('Your listing has been deleted');
+    }
+  };
+  const onEdit = async (listingID) => {
+    navigate(`/edit-listing/${listingID}`);
+  };
 
   return (
     <>
@@ -161,6 +161,8 @@ export default function Profile() {
                   key={listing.id}
                   id={listing.id}
                   listing={listing.data}
+                  onDelete={() => onDelete(listing.id)}
+                  onEdit={() => onEdit(listing.id)}
                 />
               ))}
             </ul>

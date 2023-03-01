@@ -1,10 +1,10 @@
 import React from 'react';
 import Moment from 'react-moment';
-import { FaTrash } from 'react-icons/fa';
+import { CgTrash } from 'react-icons/cg';
 import { BiEdit } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
 
-export default function ListingItem({ listing, id }) {
+export default function ListingItem({ listing, id, onEdit, onDelete }) {
   return (
     <li className='bg-white relative flex flex-col justify-between items-center shadow-md hover:shadow-xl rounded-md overflow-hidden transition-shadow duration-150 ease-in-out m-[10px]'>
       <Link className='contents' to={`/category/${listing.type}/${id}`}>
@@ -37,6 +37,18 @@ export default function ListingItem({ listing, id }) {
           </p>
         </div>
       </Link>
+      {onDelete && (
+        <CgTrash
+          className='absolute bottom-2 right-2 h-[14px] cursor-pointer text-red-400'
+          onClick={() => onDelete(listing.id)}
+        />
+      )}
+      {onEdit && (
+        <BiEdit
+          className='absolute bottom-2 right-7 h-[14px] cursor-pointer text-black-400'
+          onClick={() => onEdit(listing.id)}
+        />
+      )}
     </li>
   );
 }
